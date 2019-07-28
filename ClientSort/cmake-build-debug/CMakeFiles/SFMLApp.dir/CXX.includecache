@@ -1,0 +1,26 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/usr/CLionProjects/ClientServ/ClientSort/main.cpp
+cstring
+-
+iostream
+-
+fstream
+-
+stdio.h
+-
+assert.h
+-
+cmath
+-
+cmath
+-
+SFML/Graphics.hpp
+-
+

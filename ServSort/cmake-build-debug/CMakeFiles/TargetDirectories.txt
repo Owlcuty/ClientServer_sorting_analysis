@@ -1,0 +1,3 @@
+/home/usr/CLionProjects/ServSort/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/home/usr/CLionProjects/ServSort/cmake-build-debug/CMakeFiles/ServSort.dir
+/home/usr/CLionProjects/ServSort/cmake-build-debug/CMakeFiles/edit_cache.dir

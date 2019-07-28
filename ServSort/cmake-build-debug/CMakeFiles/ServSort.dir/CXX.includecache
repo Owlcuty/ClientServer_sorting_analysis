@@ -1,0 +1,22 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/usr/CLionProjects/ServSort/main.cpp
+stdio.h
+-
+assert.h
+-
+string
+-
+cstring
+-
+iostream
+-
+fstream
+-
+

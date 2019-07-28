@@ -1,0 +1,3 @@
+/home/usr/CLionProjects/ClientServ/ClientSort/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/home/usr/CLionProjects/ClientServ/ClientSort/cmake-build-debug/CMakeFiles/SFMLApp.dir
+/home/usr/CLionProjects/ClientServ/ClientSort/cmake-build-debug/CMakeFiles/edit_cache.dir

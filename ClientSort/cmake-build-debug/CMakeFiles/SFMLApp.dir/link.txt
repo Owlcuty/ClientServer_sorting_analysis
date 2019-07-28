@@ -1,0 +1,1 @@
+/usr/bin/c++  -g   CMakeFiles/SFMLApp.dir/main.cpp.o  -o SFMLApp  -L/home/usr/CLionProjects/ClientServ/ClientSort/SFML_LIBRARY_DIR -Wl,-rpath,/home/usr/CLionProjects/ClientServ/ClientSort/SFML_LIBRARY_DIR -lsfml-graphics -lsfml-window -lsfml-system 
