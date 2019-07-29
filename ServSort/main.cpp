@@ -141,7 +141,7 @@ struct Request {
 };
 
 void read_struct(std::string request, Request* req_data,
-        void (*func[])(int array[], int* permutations, int* comparisons, int num_element)) {
+                 void (*func[])(int array[], int* permutations, int* comparisons, int num_element)) {
     std::string str_now;
     int now = 0;
 
@@ -181,76 +181,67 @@ void copy_array(int ar1[], const int ar2[], int n) {
     for (int i = 0; i < n; i++) {
         ar1[i] = ar2[i];
     }
-};
+}
 
 int main() {
-    std::ifstream indatas("/home/usr/CLionProjects/ClientServ/ClientSort/request.txt");
-    std::ofstream out_res("/home/usr/CLionProjects/ServSort/result.txt");
+    std::ifstream indatas("ClientSort/request.txt");
+//    std::ifstream indatas("../../ClientSort/cmake-build-debug/request.txt");
+//    std::ifstream indatas("/home/usr/CLionProjects/ClientServ/ClientSort/cmake-build-debug/request.txt");
+//    FILE* indatas = fopen("../../ClientSort/cmake-build-debug/request.txt", "r");
 
-    char request[Settings::Max_str_req];
+    FILE* out_res = fopen("ServSort/result.txt", "w");
+//    FILE* out_res = fopen("result.txt", "w");
+    setvbuf(out_res, nullptr, _IONBF, 0);
+
+    char* request = static_cast<char *>(calloc(Settings::Max_str_req, sizeof(*request)));
     Request req_data = {};
-    std::pair <int, int> range[Num_types_sortings] = {};
-    int arr_for_sort[Settings::NMax_for_arrays], arr_for_copy[Settings::NMax_for_arrays];
+    int* arr_for_sort = static_cast<int *>(calloc(Settings::NMax_for_arrays, sizeof(*arr_for_sort)));
+    int* arr_for_copy= static_cast<int *>(calloc(Settings::NMax_for_arrays, sizeof(*arr_for_sort)));
     int perm = 0;
     int comp = 0;
     void (*funcs[Num_types_sortings])(int array[], int* permutations, int* comparisons, int num_element) = {
             &empty_sort, &bubble_sort, &selection_sort, &heap_sort, &insertion_sort};
-    bool used[Num_types_sortings] = {};
+    bool* used = static_cast<bool *>(calloc(Num_types_sortings, sizeof(*used)));
 
     while(1) {
+//        std::cout << "1\n";
         indatas.getline(request, Settings::Max_str_req);
+//        std::cout << request << std::endl;
         if (std::strlen(request)) {
             read_struct(request, &req_data, funcs);
             if (used[req_data.num_sort]) {
                 continue;
             }
             used[req_data.num_sort] = true;
-            printf("%s\t%i\n", request, std::strlen(request));
+            printf("%s\t%zu\n", request, std::strlen(request));
 
             build_arr(req_data.n_max, arr_for_sort);
 
+            int cnt = 0;
             for (int num_element = req_data.n_min; num_element <= req_data.n_max; num_element ++) {
                 copy_array(arr_for_copy, arr_for_sort, num_element);
                 perm = 0;
                 comp = 0;
 
-//                printf("%i ", num_element);
                 req_data.func(arr_for_copy, &perm, &comp, num_element);
-
-                out_res << perm << " " << comp << (out_res, (num_element == req_data.n_max) ? "\n" : " ");
+                cnt += (bool)(perm) + (bool)(comp);
+                fprintf(out_res, "%i %i", perm, comp);
+                fprintf(out_res, (num_element == req_data.n_max) ? "\n" : " ");
             }
         }
         else {
             indatas.close();
-            indatas.open("/home/usr/CLionProjects/ClientServ/ClientSort/request.txt");
+//            fclose(indatas);
+//            indatas.open("ClientSort/request.txt");
+
+//            indatas = fopen("../../ClientSort/cmake-build-debug/request.txt", "r");
+            indatas.open("ClientSort/request.txt");
+//            indatas.open("/home/usr/CLionProjects/ClientServ/ClientSort/cmake-build-debug/request.txt");
         }
-        /*
-        if (request[std::strlen(request) - 1] == EOF) {
-            fprintf(in_datas, "YEEEE\n");
-            continue;
-//            fclose(in_datas);
-//            fseek(in_datas, 0, SEEK_SET);
-        }
-        read_struct(request, &req_data, funcs);
-        if (used[req_data.num_sort]) {
-            fclose(in_datas);
-            in_datas = fopen("/home/usr/CLionProjects/ClientServ/ClientSort/request.txt", "r");
-            fseek(in_datas, 0, SEEK_END);
-            printf("NUM_SORT: %i\n", req_data.num_sort);
-            continue;
-//            break;
-        }
-        used[req_data.num_sort] = true;
-
-
-        printf("%s\n", request);
-        printf("num_file = %i, num_sort = %i, n_min = %i, n_max = %i" "\n", req_data.num_file, req_data.num_sort,
-                req_data.n_min, req_data.n_max);
-
-
-*/
-//        printf("\n");
-
     }
+    free(request);
+    free(arr_for_sort);
+    free(arr_for_copy);
+    free(used);
     return 0;
 }

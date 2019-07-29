@@ -60,10 +60,12 @@ namespace Settings {
     const int times_sorts[] = {0, 5, 3, 1, 3};
 }
 
-int *copy_of_arr = static_cast<int *>(calloc(Settings::NMax_for_sort, sizeof(*copy_of_arr)));
-bool *used_sortings1 = static_cast<bool *>(calloc(Settings::NMax_for_sort, sizeof(*used_sortings1)));
-bool *used_sortings2 = static_cast<bool *>(calloc(Settings::NMax_for_sort, sizeof(*used_sortings2)));
-int *array_for_sorting = static_cast<int *>(calloc(Settings::NMax_for_sort, sizeof(*array_for_sorting)));
+int* copy_of_arr = static_cast<int *>(calloc(Settings::NMax_for_sort, sizeof(*copy_of_arr)));
+bool* used_sortings1 = static_cast<bool *>(calloc(Settings::NMax_for_sort, sizeof(*used_sortings1)));
+bool* used_sortings2 = static_cast<bool *>(calloc(Settings::NMax_for_sort, sizeof(*used_sortings2)));
+int* array_for_sorting = static_cast<int *>(calloc(Settings::NMax_for_sort, sizeof(*array_for_sorting)));
+int* perms = static_cast<int *>(calloc(Settings::NMax_for_sort, sizeof(*perms)));
+int* coms = static_cast<int *>(calloc(Settings::NMax_for_sort, sizeof(*perms)));
 
 void rand_array(int nmax, int array[]);
 
@@ -272,11 +274,60 @@ void Graph::draw(sf::RenderWindow *window, const bool *choose, int now) {
     }
 }
 
-void destroy_from_building_funcs() {
+void destroy_callocs() {
     free(copy_of_arr);
     free(used_sortings1);
     free(used_sortings2);
     free(array_for_sorting);
+    free(perms);
+    free(coms);
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+
+// ----- Reading file --------------------------------------------------------------------------------------------------
+
+int fread_ints(int a[], int num_element, int start_element, FILE *out, int in_arr) {
+    assert(start_element + num_element <= in_arr);
+
+    std::string now = "";
+    int cnt = 0;
+    char c;
+    while (cnt < num_element) {
+        c = fgetc(out);
+
+//        std::cout << c << " ";
+
+        assert(isdigit(c) || c == '\n' || c == EOF || c == ' ');
+        assert(typeid(now) == typeid(std::string));
+
+        if (c == '\n' || c == EOF) {
+//            std::cout << cnt + start_element << " " << now << std::endl;
+            a[start_element + cnt] = std::stoi(now);
+            cnt++;
+            break;
+        }
+        if (c == ' ') {
+//            std::cout << cnt + start_element << " " << now << std::endl;
+            a[start_element + cnt] = std::stoi(now);
+            cnt++;
+            now = "";
+        } else {
+            now += c;
+        }
+    }
+    return cnt;
+}
+
+int fread_para(int a[], int b[], int num_element, int start_element, FILE *out, int in_arr1, int in_arr2) {
+    assert(start_element + num_element <= std::min(in_arr1, in_arr2));
+
+    int cnt = 0;
+    for (int n = 0; n < num_element; n++) {
+        cnt += fread_ints(a, 1, start_element + n, out, in_arr1);
+        cnt += fread_ints(b, 1, start_element + n, out, in_arr2);
+    }
+    return cnt;
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -322,10 +373,10 @@ bool is_clicked(sf::Clock clock) {
 //    window->setMouseCursorVisible(!is_pointer);
 
 void build_app(sf::RenderWindow *window, sf::RenderWindow *warning_window, Button sort_buttons[], Button fill_buttons[],
-               Button *next_but,
+               Button *next_btn,
                int ready[], bool choose[][Num_types_sortings],
                Text *brief, Text *choose_sort, Text *choose_fill, Text *warning, bool *is_warning, sf::View fixed,
-               Graph *graph1, Graph *graph2, Text *wait_str, FILE* requests, FILE* results) {
+               Graph *graph1, Graph *graph2, Text *wait_str, FILE *requests, FILE *results) {
     sf::Clock clock;
     bool is_necessary = true;
     int time_of_sort = 0;
@@ -372,59 +423,51 @@ void build_app(sf::RenderWindow *window, sf::RenderWindow *warning_window, Butto
         }
 
         time_of_sort = 0;
-        char req[18];
-        char result[Settings::NMax_for_sort * 2];
-        int perms[Settings::NMax_for_sort];
-        int coms[Settings::NMax_for_sort];
 
-        if (check_border(*next_but, window)) {
+        if ((check_border(*next_btn, window) && is_clicked(clock)) || event.key.code == sf::Keyboard::Return) {
 //            cursor->is_pointer = true;
-            if (is_clicked(clock)) {
-                clock.restart();
-                if (ready[0] && ready[1]) {
-                    *is_warning = false;
-                    for (int i = 1; i < Num_types_sortings; i++) {
-                        time_of_sort += (!used_sortings1[i]) * choose[0][i] * Settings::times_sorts[i];
-                    }
-                    wait_str->str = "Please, wait about " + std::to_string(time_of_sort) + " sec";
-                    wait_str->draw(window);
-                    window->display();
-                    printf("%d" "\n", clock.getElapsedTime().asMilliseconds());
-                    requests = fopen("request.txt", "w");
-                    for (int type = 0; type < Num_types_sortings; type++) {
-                        if (choose[0][type]) {
-//                            sprintf(req, );
-                            fprintf(requests, "%i %i %i %i\n", 1, type, 1, Settings::NMax_for_sort);
-
-                        }
-                    }
-                    fclose(requests);
-                    std::system("sleep 5s");
-                    results = fopen("/home/usr/CLionProjects/ServSort/cmake-build-debug/result.txt", "r");
-                    for (int type = 0; type < Num_types_sortings; type++) {
-                        if (!choose[0][type]) continue;
-                        while (getline(reinterpret_cast<char **>(result),
-                                       reinterpret_cast<size_t *>(Settings::NMax_for_sort * 2), results)) {}
-                        for (int num = 0; num < Settings::NMax_for_sort * 2; num += 2) {
-                            fread(perms, sizeof(perms), 1, results);
-                            fread(coms, sizeof(coms), 1, results);
-                            graph1->points[type][num / 2] = sf::Vector2f(num * 0.1992 + 300, 650 - perms[0] * 0.095);
-                            graph2->points[type][num / 2] = sf::Vector2f(num * 0.1992 + 820, 650 - coms[0 ] * 0.001);
-                        }
-                    }
-                    fclose(results);
-//                    graph1->build_func_graphs(choose[0], sort_buttons);
-//                    graph2->build_func_graphs(choose[0], sort_buttons);
-                    printf("%d" "\n", clock.getElapsedTime().asMilliseconds());
-                } else {
-                    *is_warning = true;
-                    is_necessary = true;
-                    std::string warn;
-                    if (ready[0]) warn = "\tYou didn't chose the kind of filling arrays";
-                    else if (ready[1]) warn = "\tYou didn't chose the kind of sortings";
-                    else warn = "You didn't chose the kinds of sortings and filling arrays";
-                    warning->str = warn;
+            clock.restart();
+            if (ready[0] && ready[1]) {
+                *is_warning = false;
+                for (int i = 1; i < Num_types_sortings; i++) {
+                    time_of_sort += (!used_sortings1[i]) * choose[0][i] * Settings::times_sorts[i];
                 }
+                wait_str->str = "Please, wait about " + std::to_string(time_of_sort) + " sec";
+                wait_str->draw(window);
+                window->display();
+//                printf("%d" "\n", clock.getElapsedTime().asMilliseconds());
+
+                requests = fopen("ClientSort/request.txt", "w");
+//                requests = fopen("request.txt", "w");
+                for (int type = 0; type < Num_types_sortings; type++) {
+                    if (choose[0][type]) {
+//                            sprintf(req, );
+                        fprintf(requests, "%i %i %i %i\n", 1, type, 1, Settings::NMax_for_sort);
+
+                    }
+                }
+                fclose(requests);
+                std::system("sleep 9s");
+                results = fopen("ServSort/result.txt", "r");
+//                results = fopen("/home/usr/CLionProjects/ServSort/cmake-build-debug/result.txt", "r");
+                for (int type = 0; type < Num_types_sortings; type++) {
+                    if (!choose[0][type]) continue;
+                    while (!fread_para(perms, coms, Settings::NMax_for_sort, 0, results, Settings::NMax_for_sort,
+                                       Settings::NMax_for_sort)) {}
+                    for (int num = 0; num < Settings::NMax_for_sort; num++) {
+                        graph1->points[type][num] = sf::Vector2f(num * 0.1992 + 300, 650 - perms[num] * 0.095);
+                        graph2->points[type][num] = sf::Vector2f(num * 0.1992 + 820, 650 - coms[num] * 0.001);
+                    }
+                }
+                fclose(results);
+            } else {
+                *is_warning = true;
+                is_necessary = true;
+                std::string warn;
+                if (ready[0]) warn = "\tYou didn't chose the kind of filling arrays";
+                else if (ready[1]) warn = "\tYou didn't chose the kind of sortings";
+                else warn = "You didn't chose the kinds of sortings and filling arrays";
+                warning->str = warn;
             }
         }
 
@@ -443,7 +486,7 @@ void build_app(sf::RenderWindow *window, sf::RenderWindow *warning_window, Butto
 
         draw_buttons(fill_buttons, Num_types_fillings, window);
 
-        next_but->draw(window);
+        next_btn->draw(window);
 
         graph1->draw(window, choose[0], Settings::NMax_for_sort - 1);
         graph2->draw(window, choose[0], Settings::NMax_for_sort - 1);
@@ -460,17 +503,17 @@ void build_app(sf::RenderWindow *window, sf::RenderWindow *warning_window, Butto
         }
     }
 
-    destroy_from_building_funcs();
+    destroy_callocs();
 
 }
 
 int main() {
-//    std::ofstream requests("/home/usr/CLionProjects/ClientServ/ClientSort/request.txt");
-//    std::ifstream results("/home/usr/CLionProjects/ServSort/result.txt");
-    FILE* requests = fopen("request.txt", "w");
-    setvbuf(requests, NULL, _IONBF, 0);
+    FILE *requests = fopen("ClientSort/request.txt", "w");
+//    FILE *requests = fopen("request.txt", "w");
+    setvbuf(requests, nullptr, _IONBF, 0);
 
-    FILE* results = fopen("/home/usr/CLionProjects/ServSort/cmake-build-debug/result.txt", "r");
+    FILE *results = fopen("ServSort/result.txt", "r");
+//    FILE *results = fopen("/home/usr/CLionProjects/ServSort/cmake-build-debug/result.txt", "r");
 
     sf::RenderWindow window(sf::VideoMode(Settings::Width, Settings::Height), "Analysis sortings");
     sf::RenderWindow warning_window;
@@ -482,8 +525,10 @@ int main() {
 
     sf::Font font;
 
-    if (!font.loadFromFile("Roboto-Regular.ttf"))
+    if (!font.loadFromFile("ClientSort/Roboto-Regular.ttf"))
         return 1;
+//    if (!font.loadFromFile("Roboto-Regular.ttf"))
+//        return 1;
 
     Text brief = {{20, 35}, "There's you can analys sortings. Choose the kind of sortings and the kind of fillings.",
                   font, Settings::Text_col, Settings::Text_size};
