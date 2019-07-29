@@ -325,7 +325,7 @@ void build_app(sf::RenderWindow *window, sf::RenderWindow *warning_window, Butto
                Button *next_but,
                int ready[], bool choose[][Num_types_sortings],
                Text *brief, Text *choose_sort, Text *choose_fill, Text *warning, bool *is_warning, sf::View fixed,
-               Graph *graph1, Graph *graph2, Text *wait_str, std::ofstream *requests, std::ifstream *results) {
+               Graph *graph1, Graph *graph2, Text *wait_str, FILE* requests, FILE* results) {
     sf::Clock clock;
     bool is_necessary = true;
     int time_of_sort = 0;
@@ -374,8 +374,8 @@ void build_app(sf::RenderWindow *window, sf::RenderWindow *warning_window, Butto
         time_of_sort = 0;
         char req[18];
         char result[Settings::NMax_for_sort * 2];
-        int perms = 0;
-        int coms = 0;
+        int perms[Settings::NMax_for_sort];
+        int coms[Settings::NMax_for_sort];
 
         if (check_border(*next_but, window)) {
 //            cursor->is_pointer = true;
@@ -390,22 +390,29 @@ void build_app(sf::RenderWindow *window, sf::RenderWindow *warning_window, Butto
                     wait_str->draw(window);
                     window->display();
                     printf("%d" "\n", clock.getElapsedTime().asMilliseconds());
+                    requests = fopen("request.txt", "w");
                     for (int type = 0; type < Num_types_sortings; type++) {
                         if (choose[0][type]) {
-                            sprintf(req, "%i %i %i %i\n", 1, type, 1, Settings::NMax_for_sort);
-                            (*requests) << req;
+//                            sprintf(req, );
+                            fprintf(requests, "%i %i %i %i\n", 1, type, 1, Settings::NMax_for_sort);
+
                         }
                     }
+                    fclose(requests);
+                    std::system("sleep 5s");
+                    results = fopen("/home/usr/CLionProjects/ServSort/cmake-build-debug/result.txt", "r");
                     for (int type = 0; type < Num_types_sortings; type++) {
                         if (!choose[0][type]) continue;
-                        while (results->getline(result, Settings::NMax_for_sort * 2)) {}
+                        while (getline(reinterpret_cast<char **>(result),
+                                       reinterpret_cast<size_t *>(Settings::NMax_for_sort * 2), results)) {}
                         for (int num = 0; num < Settings::NMax_for_sort * 2; num += 2) {
-                            (*results) >> perms;
-                            (*results) >> coms;
-                            graph1->points[type][num / 2] = sf::Vector2f(num * 0.1992 + 300, 650 - perms * 0.095);
-                            graph2->points[type][num / 2] = sf::Vector2f(num * 0.1992 + 820, 650 - coms * 0.001);
+                            fread(perms, sizeof(perms), 1, results);
+                            fread(coms, sizeof(coms), 1, results);
+                            graph1->points[type][num / 2] = sf::Vector2f(num * 0.1992 + 300, 650 - perms[0] * 0.095);
+                            graph2->points[type][num / 2] = sf::Vector2f(num * 0.1992 + 820, 650 - coms[0 ] * 0.001);
                         }
                     }
+                    fclose(results);
 //                    graph1->build_func_graphs(choose[0], sort_buttons);
 //                    graph2->build_func_graphs(choose[0], sort_buttons);
                     printf("%d" "\n", clock.getElapsedTime().asMilliseconds());
@@ -458,10 +465,12 @@ void build_app(sf::RenderWindow *window, sf::RenderWindow *warning_window, Butto
 }
 
 int main() {
+//    std::ofstream requests("/home/usr/CLionProjects/ClientServ/ClientSort/request.txt");
+//    std::ifstream results("/home/usr/CLionProjects/ServSort/result.txt");
+    FILE* requests = fopen("request.txt", "w");
+    setvbuf(requests, NULL, _IONBF, 0);
 
-    freopen("output.out", "w", stdout);
-    std::ofstream requests("/home/usr/CLionProjects/ClientServ/ClientSort/request.txt");
-    std::ifstream results("/home/usr/CLionProjects/ServSort/result.txt");
+    FILE* results = fopen("/home/usr/CLionProjects/ServSort/cmake-build-debug/result.txt", "r");
 
     sf::RenderWindow window(sf::VideoMode(Settings::Width, Settings::Height), "Analysis sortings");
     sf::RenderWindow warning_window;
@@ -525,9 +534,10 @@ int main() {
     Text wait_str = {{20, Settings::Height - 120}, "Please, wait about n sec", font, Settings::Warning_text_color,
                      Settings::Warning_text_size};
 
+    fclose(requests);
+    fclose(results);
     build_app(&window, &warning_window, sort_buttons, fill_buttons, &next_btn, ready, choose, &brief, &choose_sort,
-              &choose_fill, &warning, &is_warning, fixed, &graph1, &graph2, &wait_str, &requests, &results);
+              &choose_fill, &warning, &is_warning, fixed, &graph1, &graph2, &wait_str, requests, results);
 
-    fclose(stdout);
     return 0;
 }

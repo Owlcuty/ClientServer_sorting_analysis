@@ -37,17 +37,17 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/main.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="120">
-              <caret line="391" column="79" lean-forward="true" selection-start-line="391" selection-start-column="79" selection-end-line="391" selection-end-column="79" />
+            <state relative-caret-position="142">
+              <caret line="527" lean-forward="true" selection-start-line="527" selection-end-line="527" />
               <folding>
-                <element signature="e#1#19#0" expanded="true" />
+                <element signature="e#0#18#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/request.txt">
+        <entry file="file://$PROJECT_DIR$/cmake-build-debug/request.txt">
           <provider selected="true" editor-type-id="text-editor" />
         </entry>
       </file>
@@ -67,6 +67,10 @@
       <find>Roboto</find>
       <find>%i %</find>
       <find>cout</find>
+      <find>fre</find>
+      <find>FILE</find>
+      <find>/usr</find>
+      <find>fcl</find>
     </findStrings>
   </component>
   <component name="IdeDocumentHistory">
@@ -74,6 +78,7 @@
       <list>
         <option value="$PROJECT_DIR$/CMakeLists.txt" />
         <option value="$PROJECT_DIR$/request.txt" />
+        <option value="$PROJECT_DIR$/cmake-build-debug/request.txt" />
         <option value="$PROJECT_DIR$/main.cpp" />
       </list>
     </option>
@@ -147,12 +152,12 @@
       <option name="presentableId" value="Default" />
       <updated>1564167805206</updated>
       <workItem from="1564167806814" duration="3474000" />
-      <workItem from="1564241884737" duration="15038000" />
+      <workItem from="1564241884737" duration="19298000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="18512000" />
+    <option name="totallyTimeSpent" value="22772000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="25" width="1366" height="743" extended-state="6" />
@@ -164,7 +169,7 @@
       <window_info anchor="bottom" id="Messages" weight="0.32954547" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32954547" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.32954547" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.12662338" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -191,15 +196,15 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/request.txt">
+    <entry file="file://$PROJECT_DIR$/cmake-build-debug/request.txt">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
     <entry file="file://$PROJECT_DIR$/main.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="120">
-          <caret line="391" column="79" lean-forward="true" selection-start-line="391" selection-start-column="79" selection-end-line="391" selection-end-column="79" />
+        <state relative-caret-position="142">
+          <caret line="527" lean-forward="true" selection-start-line="527" selection-end-line="527" />
           <folding>
-            <element signature="e#1#19#0" expanded="true" />
+            <element signature="e#0#18#0" expanded="true" />
           </folding>
         </state>
       </provider>
